@@ -1,5 +1,9 @@
 package tictactoe.ui;
 
+import tictactoe.game.*;
+import tictactoe.game.player.AIPlayer;
+import tictactoe.game.player.HumanPlayer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,6 +14,7 @@ public class DesktopApp extends JFrame implements ActionListener, UserInterface 
   private JButton reset, start, playerStarts, computerStarts;
   private JButton[][] grid;
   private JLabel message;
+  private Game currentGame;
 
   private final Font bigFont = new Font("Lucida Calligraphy", Font.BOLD, 30);
   private final Font smallFont = new Font("Lucida Bright", Font.BOLD, 12);
@@ -63,16 +68,19 @@ public class DesktopApp extends JFrame implements ActionListener, UserInterface 
     JTabbedPane pane = new JTabbedPane();
     pane.setBackground(Color.CYAN);
     pane.setFont(smallFont);
-    JPanel tab1 = new JPanel(new GridLayout(1, 1, 0, 0));
-    JPanel tab2 = new JPanel(new GridLayout(1, 1, 0, 0));
     start = createButton("Start Game", Color.CYAN, smallFont, true);
     playerStarts = createButton("Player Starts", Color.CYAN, smallFont, true);
     computerStarts = createButton("Computer Starts", Color.CYAN, smallFont, true);
+    JPanel tab1 = new JPanel(new GridLayout(1, 1, 0, 0));
     tab1.add(start, JPanel.CENTER_ALIGNMENT);
-    tab2.add(playerStarts, JPanel.CENTER_ALIGNMENT);
-    tab2.add(computerStarts, JPanel.CENTER_ALIGNMENT);
     pane.addTab("Player vs. Player", tab1);
-    pane.addTab("Player vs. Computer", tab2);
+
+    // TODO: 12/6/16 Uncomment after AIPlayer has been implemented
+//    JPanel tab2 = new JPanel(new GridLayout(1, 1, 0, 0));
+//    tab2.add(playerStarts, JPanel.CENTER_ALIGNMENT);
+//    tab2.add(computerStarts, JPanel.CENTER_ALIGNMENT);
+//    pane.addTab("Player vs. Computer", tab2);
+
     return pane;
   }
 
@@ -88,41 +96,45 @@ public class DesktopApp extends JFrame implements ActionListener, UserInterface 
   @Override
   public void actionPerformed(ActionEvent event) {
     if (event.getSource() == reset) {
-      for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-          grid[i][j].setText("");
-          grid[i][j].setEnabled(false);
-        }
-      }
-      reset.setEnabled(false);
-      start.setEnabled(true);
-      playerStarts.setEnabled(true);
-      computerStarts.setEnabled(true);
-      message.setText("Start a Game!!");
+      resetGame();
     }
 
     if (event.getSource() == start) {
       initializeGame();
-      // TODO: 12/5/16 Do something
+      currentGame = new TicTacToeGame(new HumanPlayer(), new HumanPlayer(), this);
     }
 
     if (event.getSource() == playerStarts) {
       initializeGame();
-      // TODO: 12/5/16 Do something
+      currentGame = new TicTacToeGame(new HumanPlayer(), new AIPlayer(), this);
     }
 
     if (event.getSource() == computerStarts) {
       initializeGame();
-      // TODO: 12/5/16 Do something
+      currentGame = new TicTacToeGame(new AIPlayer(), new HumanPlayer(), this);
     }
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         if (event.getSource() == grid[i][j]) {
-          // TODO: 12/5/16 Do something
+          currentGame.play(new Coordinate(i, j));
         }
       }
     }
+  }
+
+  private void resetGame() {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        grid[i][j].setText("");
+        grid[i][j].setEnabled(false);
+      }
+    }
+    reset.setEnabled(false);
+    start.setEnabled(true);
+    playerStarts.setEnabled(true);
+    computerStarts.setEnabled(true);
+    message.setText("Start a Game!!");
   }
 
   private void initializeGame() {
@@ -139,8 +151,27 @@ public class DesktopApp extends JFrame implements ActionListener, UserInterface 
   }
 
   @Override
-  public void openGame() {
-    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  public void display() {
+    this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     this.setVisible(true);
+  }
+
+  @Override
+  public void refresh(Coordinate coordinate, Symbol symbol) {
+    grid[coordinate.getX()][coordinate.getY()].setText(symbol.toString());
+  }
+
+  @Override
+  public void freezeBoard() {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        grid[i][j].setEnabled(false);
+      }
+    }
+  }
+
+  @Override
+  public void displayMessage(String message) {
+    this.message.setText(message);
   }
 }
