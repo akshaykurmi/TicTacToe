@@ -21,7 +21,13 @@ public class Board {
     }
   }
 
+  public Board(Board original) {
+    grid = new ArrayList<>();
+    grid.addAll(original.grid);
+  }
+
   public void add(Cell cell) {
+    grid.remove(new Cell(cell.getCoordinate(), NONE));
     grid.add(cell);
   }
 
@@ -32,7 +38,7 @@ public class Board {
            !checkWon(O);
   }
 
-  boolean checkWon(Symbol symbol) {
+  public boolean checkWon(Symbol symbol) {
     List<Coordinate> filteredGrid = filterGrid(cell -> cell.isSymbol(symbol));
     for (int i=0; i<3; i++) {
       if (checkContains(filteredGrid, coordinate(0,i), coordinate(1,i), coordinate(2,i)) ||
@@ -54,5 +60,13 @@ public class Board {
   private boolean checkContains(List<Coordinate> filteredGrid, Coordinate... coordinates) {
     return Arrays.stream(coordinates)
                  .allMatch(filteredGrid::contains);
+  }
+
+  public List<Coordinate> getEmptyCoordinates() {
+    return filterGrid(cell -> cell.isSymbol(NONE));
+  }
+
+  public boolean isGameOver() {
+    return checkWon(X) || checkWon(O) || checkDraw();
   }
 }

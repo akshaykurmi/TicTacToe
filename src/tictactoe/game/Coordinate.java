@@ -14,6 +14,14 @@ public class Coordinate {
     return new Coordinate(x, y);
   }
 
+  public int getX() {
+    return x;
+  }
+
+  public int getY() {
+    return y;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -29,11 +37,8 @@ public class Coordinate {
     return result;
   }
 
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
+  @Override
+  public String toString() {
+    return "(" + x + ", " + y + ")";
   }
 }

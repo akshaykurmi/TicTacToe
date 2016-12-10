@@ -1,5 +1,6 @@
 package tictactoe.game;
 
+import tictactoe.game.player.AIPlayer;
 import tictactoe.game.player.Player;
 import tictactoe.ui.UserInterface;
 
@@ -18,38 +19,49 @@ public class TicTacToeGame implements Game {
     this.userInterface = userInterface;
     board = new Board(3, 3);
     currentSymbol = X;
+    if (currentPlayer() instanceof AIPlayer) {
+      play(null);
+    }
   }
 
   @Override
   public void play(Coordinate coordinate) {
     if (currentSymbol == X) {
-      board = playerX.makeMove(board, coordinate, currentSymbol);
+      coordinate = playerX.makeMove(board, currentSymbol, coordinate);
     }
     else {
-      board = playerO.makeMove(board, coordinate, currentSymbol);
+      coordinate = playerO.makeMove(board, currentSymbol, coordinate);
     }
     userInterface.refresh(coordinate, currentSymbol);
-    flipCurrentSymbol();
+    currentSymbol = currentSymbol.flip();
     sendMessage();
+    if (!board.isGameOver() && currentPlayer() instanceof AIPlayer) {
+      play(null);
+    }
   }
 
   private void sendMessage() {
     userInterface.displayMessage(currentSymbol + " - Make your Move");
     if (board.checkWon(X)) {
-      userInterface.displayMessage("X has Won!!");
-      userInterface.freezeBoard();
+      endGame("X has Won!!");
     }
     else if (board.checkWon(O)) {
-      userInterface.displayMessage("O has Won!!");
-      userInterface.freezeBoard();
+      endGame("O has Won!!");
     }
     else if (board.checkDraw()) {
-      userInterface.displayMessage("The Match is a Draw.");
-      userInterface.freezeBoard();
+      endGame("The Match is a Draw.");
     }
   }
 
-  private void flipCurrentSymbol() {
-    currentSymbol = currentSymbol == X ? O : X;
+  private void endGame(String message) {
+    userInterface.displayMessage(message);
+    userInterface.freezeBoard();
+  }
+
+  private Player currentPlayer() {
+    if (currentSymbol == X) {
+      return playerX;
+    }
+    return playerO;
   }
 }

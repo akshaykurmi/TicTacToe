@@ -7,8 +7,8 @@ import tictactoe.game.Symbol;
 
 public class HumanPlayer implements Player {
   @Override
-  public Board makeMove(Board board, Coordinate coordinate, Symbol symbol) {
+  public Coordinate makeMove(Board board, Symbol symbol, Coordinate coordinate) {
     board.add(new Cell(coordinate, symbol));
-    return board;
+    return coordinate;
   }
 }
